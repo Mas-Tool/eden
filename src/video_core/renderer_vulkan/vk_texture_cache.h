@@ -251,6 +251,10 @@ public:
     }
 
     [[nodiscard]] bool HasAspectColorBit(size_t index) const noexcept {
+        // rt_map is only populated for bound slots, unbound ones would alias image 0
+        if (index >= NUM_RT || render_pass_key.color_formats[index] == PixelFormat::Invalid) {
+            return false;
+        }
         return (image_ranges.at(rt_map[index]).aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) != 0;
     }
 
