@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <limits>
 #include <span>
 
 #include "video_core/texture_cache/texture_cache_base.h"
@@ -194,6 +195,9 @@ public:
     }
 
     [[nodiscard]] bool HasAspectColorBit(size_t index) const noexcept {
+        if (index >= NUM_RT || rt_map[index] == UNBOUND_RT) {
+            return false;
+        }
         return (image_ranges.at(rt_map[index]).aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) != 0;
     }
 
@@ -210,6 +214,9 @@ public:
     }
 
 private:
+    // Marks rt_map entries of slots without a color buffer, which would otherwise alias image 0
+    static constexpr size_t UNBOUND_RT = (std::numeric_limits<size_t>::max)();
+
     vk::Framebuffer framebuffer;
     VkRenderPass renderpass{};
     VkExtent2D render_area{};

@@ -2419,6 +2419,7 @@ void Framebuffer::CreateFramebuffer(TextureCacheRuntime& runtime,
         const ImageView* const color_buffer = color_buffers[index];
         if (!color_buffer) {
             renderpass_key.color_formats[index] = PixelFormat::Invalid;
+            rt_map[index] = UNBOUND_RT;
             continue;
         }
         width = (std::min)(width, is_rescaled ? resolution.ScaleUp(color_buffer->size.width)
