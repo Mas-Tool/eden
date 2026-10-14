@@ -33,6 +33,15 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
             "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}" "platforms;android-36"
 
+      # Kotlin compiles before CMake configure copies SDL's Java sources on a fresh checkout,
+      # so the first pass is expected to fail once the configure step has generated them.
+      - name: Generate SDL Java sources
+        run: |
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/${NDK_VERSION}"
+          .ci/android/build.sh -t standard -b RelWithDebInfo > prime.log 2>&1 || true
+          find externals/generated/sdl/java -name SDL.java | grep . || { tail -100 prime.log; exit 1; }
+
       - name: Build
         run: |
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
